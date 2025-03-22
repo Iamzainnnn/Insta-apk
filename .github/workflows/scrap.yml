@@ -38,8 +38,7 @@ jobs:
       - name: Run extraction script
         run: |
           cat <<EOF > script.py
-import requests
-import re
+
 
 def get_aptoide_download_link(package_name):
     url = f'https://en.aptoide.com/app/{package_name}'
