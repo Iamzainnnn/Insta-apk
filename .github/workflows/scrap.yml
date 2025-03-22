@@ -26,14 +26,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Create Gradle Wrapper
+      - name: Initialize Gradle Project
         run: |
-          mkdir -p gradle
-          gradle wrapper
-
-      - name: Create Gradle Build Files
-        run: |
+          gradle init --type java-application --dsl groovy --package AptoideScraperProject --project-name AptoideScraperProject
           mkdir -p src/main/java
+
+      - name: Replace Gradle Build Files
+        run: |
           cat <<EOF > settings.gradle
           rootProject.name = 'AptoideScraperProject'
           EOF
