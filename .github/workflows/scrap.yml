@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read  # Private repo ke liye zaroori permission
-  id-token: write # Secrets access ke liye zaroori hai
+  contents: read
+  id-token: write
 
 jobs:
   extract_download_link:
@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3  # Repo files access karne ke liye
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,9 +30,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests
+          pip freeze | grep requests  # Yeh check karega ki requests install hua ya nahi
 
-      - name: Debug - Show Environment Variables
-        run: env  # Yeh check karega ki workflow sahi chal raha hai ya nahi
+      - name: Debug - Show Installed Python Packages
+        run: pip list  # Yeh debug step dikhayega ki kaunse packages install hue hain
 
       - name: Run extraction script
         run: |
@@ -42,23 +43,4 @@ import re
 
 def get_aptoide_download_link(package_name):
     url = f'https://en.aptoide.com/app/{package_name}'
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        print(f'Error: Unable to access {url}')
-        return None
-    match = re.search(r'"apkUrl":"(https://[^"]+)"', response.text)
-    if match:
-        return match.group(1)
-    print('Error: Download link not found.')
-    return None
-
-package_name = 'com.instagram.android'
-download_link = get_aptoide_download_link(package_name)
-
-if download_link:
-    print(f'Direct Download Link: {download_link}')
-else:
-    exit(1)
-EOF
-          python script.py
+    headers =
