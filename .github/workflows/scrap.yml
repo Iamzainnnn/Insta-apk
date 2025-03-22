@@ -3,11 +3,15 @@ name: Extract Instagram APK from Aptoide
 on:
   push:
     branches:
-      - main  # Apni branch ka naam yahan change kar sakte ho
+      - main
   pull_request:
     branches:
       - main
-  workflow_dispatch:  # Manual trigger enable karta hai
+  workflow_dispatch:
+
+permissions:
+  contents: read  # Private repo ke liye repo read karne ki permission
+  id-token: write  # GitHub Actions ko secrets access karne ki permission
 
 jobs:
   extract_download_link:
@@ -15,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3  # Repository ko clone karta hai
+        uses: actions/checkout@v3  # Repo clone karega
 
       - name: Set up Python
         uses: actions/setup-python@v4
