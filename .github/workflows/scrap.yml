@@ -1,4 +1,4 @@
-name: Full Gradle + Java Setup for Aptoide Scraper
+name: Extract Aptoide App Link
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 jobs:
-  setup_and_run:
+  extract_aptoide_link:
     runs-on: ubuntu-latest
 
     steps:
@@ -50,14 +50,13 @@ jobs:
 
           dependencies {
               implementation 'org.jsoup:jsoup:1.15.3'
-              implementation 'org.apache.httpcomponents.client5:httpclient5:5.2'
           }
 
           application {
               mainClass = 'AptoideScraper'
           }
 
-          task extractDownloadLink(type: JavaExec) {
+          task extractAppLink(type: JavaExec) {
               mainClass = 'AptoideScraper'
               classpath = sourceSets.main.runtimeClasspath
           }
@@ -66,51 +65,12 @@ jobs:
       - name: Create Java Scraper File
         run: |
           cat <<EOF > src/main/java/AptoideScraper.java
-          import org.jsoup.Jsoup;
-          import org.jsoup.nodes.Document;
-          import org.jsoup.nodes.Element;
-          import java.io.IOException;
-          import java.util.regex.Matcher;
-          import java.util.regex.Pattern;
-
           public class AptoideScraper {
               public static void main(String[] args) {
-                  String appName = "instagram";  // Change app name if needed
-                  String searchUrl = "https://en.aptoide.com/search?query=" + appName;
-                  
-                  try {
-                      // Step 1: Search for the app and find the first package URL
-                      Document searchDoc = Jsoup.connect(searchUrl)
-                              .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-                              .get();
-                      
-                      Element firstResult = searchDoc.selectFirst("a[data-app-package]");
-                      if (firstResult == null) {
-                          System.out.println("Error: App not found.");
-                          System.exit(1);
-                      }
+                  String appName = "instagram"; // Change app name if needed
+                  String aptoideUrl = "https://" + appName + ".en.aptoide.com/app";
 
-                      String packageName = firstResult.attr("data-app-package");
-                      String appUrl = "https://" + packageName + ".en.aptoide.com/app";
-
-                      // Step 2: Fetch the APK download link from the app page
-                      Document appDoc = Jsoup.connect(appUrl)
-                              .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-                              .get();
-
-                      Pattern pattern = Pattern.compile("\"apkUrl\":\"(https://[^\"]+)\"");
-                      Matcher matcher = pattern.matcher(appDoc.html());
-
-                      if (matcher.find()) {
-                          System.out.println("Direct Download Link: " + matcher.group(1));
-                      } else {
-                          System.out.println("Error: Download link not found.");
-                          System.exit(1);
-                      }
-                  } catch (IOException e) {
-                      System.out.println("Error: Unable to access Aptoide.");
-                      System.exit(1);
-                  }
+                  System.out.println("Aptoide App Link: " + aptoideUrl);
               }
           }
           EOF
@@ -119,4 +79,4 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build and Run Scraper
-        run: ./gradlew extractDownloadLink
+        run: ./gradlew extractAppLink
