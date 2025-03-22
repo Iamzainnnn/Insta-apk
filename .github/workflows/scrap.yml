@@ -26,9 +26,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Initialize Gradle Project
+      - name: Initialize Gradle Project (Force Overwrite)
         run: |
-          gradle init --type java-application --dsl groovy --package AptoideScraperProject --project-name AptoideScraperProject
+          rm -rf gradle build.gradle settings.gradle src
+          gradle init --type java-application --dsl groovy --package AptoideScraperProject --project-name AptoideScraperProject --overwrite
           mkdir -p src/main/java
 
       - name: Replace Gradle Build Files
