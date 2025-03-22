@@ -3,29 +3,33 @@ name: Extract Instagram APK from Aptoide
 on:
   push:
     branches:
-      - main  # Yahan apni branch ka naam change kar sakte ho
+      - main  # Apni branch ka naam yahan change kar sakte ho
   pull_request:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger enable karta hai
 
 jobs:
   extract_download_link:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3  # Repo ko checkout karne ke liye
+        uses: actions/checkout@v3  # Repository ko clone karta hai
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install requests
-      
+
+      - name: Debug - Show Environment Variables
+        run: env  # Yeh step check karega ki workflow sahi se run ho raha hai ya nahi
+
       - name: Run extraction script
         run: |
           echo "import requests
