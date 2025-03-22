@@ -91,7 +91,7 @@ jobs:
         run: ./gradlew extractAppLink
 
       - name: Upload Aptoide Link File
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # 🔥 Updated Version
         with:
           name: aptoide-link
           path: aptoide_link.txt
