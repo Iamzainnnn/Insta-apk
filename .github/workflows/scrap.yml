@@ -1,8 +1,6 @@
 name: Extract Instagram APK from Aptoide
 
 on:
-  schedule:
-    - cron: '0 0 * * *'  # Run daily at midnight
   workflow_dispatch:
 
 jobs:
