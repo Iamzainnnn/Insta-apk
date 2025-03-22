@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read  # Private repo ke liye repo read karne ki permission
-  id-token: write  # GitHub Actions ko secrets access karne ki permission
+  contents: read  # Private repo ke liye zaroori permission
+  id-token: write # Secrets access ke liye zaroori hai
 
 jobs:
   extract_download_link:
@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3  # Repo clone karega
+        uses: actions/checkout@v3  # Repo files access karne ke liye
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -32,11 +32,12 @@ jobs:
           pip install requests
 
       - name: Debug - Show Environment Variables
-        run: env  # Yeh step check karega ki workflow sahi se run ho raha hai ya nahi
+        run: env  # Yeh check karega ki workflow sahi chal raha hai ya nahi
 
       - name: Run extraction script
         run: |
-          echo "import requests
+          cat <<EOF > script.py
+import requests
 import re
 
 def get_aptoide_download_link(package_name):
@@ -46,7 +47,7 @@ def get_aptoide_download_link(package_name):
     if response.status_code != 200:
         print(f'Error: Unable to access {url}')
         return None
-    match = re.search(r'\"apkUrl\":\"(https://[^\"]+)\"', response.text)
+    match = re.search(r'"apkUrl":"(https://[^"]+)"', response.text)
     if match:
         return match.group(1)
     print('Error: Download link not found.')
@@ -58,5 +59,6 @@ download_link = get_aptoide_download_link(package_name)
 if download_link:
     print(f'Direct Download Link: {download_link}')
 else:
-    exit(1)" > script.py
+    exit(1)
+EOF
           python script.py
