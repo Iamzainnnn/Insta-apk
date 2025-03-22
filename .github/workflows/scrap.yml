@@ -68,22 +68,38 @@ jobs:
           cat <<EOF > src/main/java/AptoideScraper.java
           import org.jsoup.Jsoup;
           import org.jsoup.nodes.Document;
+          import org.jsoup.nodes.Element;
           import java.io.IOException;
           import java.util.regex.Matcher;
           import java.util.regex.Pattern;
 
           public class AptoideScraper {
               public static void main(String[] args) {
-                  String packageName = "com.instagram.android";
-                  String url = "https://en.aptoide.com/app/" + packageName;
+                  String appName = "instagram";  // Change app name if needed
+                  String searchUrl = "https://en.aptoide.com/search?query=" + appName;
                   
                   try {
-                      Document doc = Jsoup.connect(url)
+                      // Step 1: Search for the app and find the first package URL
+                      Document searchDoc = Jsoup.connect(searchUrl)
                               .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
                               .get();
                       
+                      Element firstResult = searchDoc.selectFirst("a[data-app-package]");
+                      if (firstResult == null) {
+                          System.out.println("Error: App not found.");
+                          System.exit(1);
+                      }
+
+                      String packageName = firstResult.attr("data-app-package");
+                      String appUrl = "https://" + packageName + ".en.aptoide.com/app";
+
+                      // Step 2: Fetch the APK download link from the app page
+                      Document appDoc = Jsoup.connect(appUrl)
+                              .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                              .get();
+
                       Pattern pattern = Pattern.compile("\"apkUrl\":\"(https://[^\"]+)\"");
-                      Matcher matcher = pattern.matcher(doc.html());
+                      Matcher matcher = pattern.matcher(appDoc.html());
 
                       if (matcher.find()) {
                           System.out.println("Direct Download Link: " + matcher.group(1));
@@ -92,7 +108,7 @@ jobs:
                           System.exit(1);
                       }
                   } catch (IOException e) {
-                      System.out.println("Error: Unable to access " + url);
+                      System.out.println("Error: Unable to access Aptoide.");
                       System.exit(1);
                   }
               }
