@@ -1,12 +1,21 @@
 name: Extract Instagram APK from Aptoide
 
 on:
+  push:
+    branches:
+      - main  # Yahan apni branch ka naam change kar sakte ho
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   extract_download_link:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # Repo ko checkout karne ke liye
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -15,28 +24,29 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install beautifulsoup4 requests
+          pip install requests
       
       - name: Run extraction script
         run: |
           echo "import requests
-from bs4 import BeautifulSoup
+import re
 
 def get_aptoide_download_link(package_name):
-    url = f'https://aptoide.com/app/{package_name}'
+    url = f'https://en.aptoide.com/app/{package_name}'
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f'Error: Unable to access {url}')
         return None
-    soup = BeautifulSoup(response.text, 'html.parser')
-    download_button = soup.find('a', {'class': 'download-button'})
-    if download_button and 'href' in download_button.attrs:
-        return download_button['href']
+    match = re.search(r'\"apkUrl\":\"(https://[^\"]+)\"', response.text)
+    if match:
+        return match.group(1)
+    print('Error: Download link not found.')
     return None
 
 package_name = 'com.instagram.android'
 download_link = get_aptoide_download_link(package_name)
+
 if download_link:
     print(f'Direct Download Link: {download_link}')
 else:
