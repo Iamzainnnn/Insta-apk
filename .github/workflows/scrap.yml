@@ -65,12 +65,21 @@ jobs:
       - name: Create Java Scraper File
         run: |
           cat <<EOF > src/main/java/AptoideScraper.java
+          import java.io.FileWriter;
+          import java.io.IOException;
+
           public class AptoideScraper {
               public static void main(String[] args) {
                   String appName = "instagram"; // Change app name if needed
                   String aptoideUrl = "https://" + appName + ".en.aptoide.com/app";
-
-                  System.out.println("Aptoide App Link: " + aptoideUrl);
+                  
+                  // Write the URL to a file
+                  try (FileWriter writer = new FileWriter("aptoide_link.txt")) {
+                      writer.write(aptoideUrl);
+                      System.out.println("Aptoide App Link saved to aptoide_link.txt");
+                  } catch (IOException e) {
+                      System.out.println("Error: Unable to write file.");
+                  }
               }
           }
           EOF
@@ -80,3 +89,9 @@ jobs:
 
       - name: Build and Run Scraper
         run: ./gradlew extractAppLink
+
+      - name: Upload Aptoide Link File
+        uses: actions/upload-artifact@v3
+        with:
+          name: aptoide-link
+          path: aptoide_link.txt
