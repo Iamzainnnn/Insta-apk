@@ -30,12 +30,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests
-          pip list | grep requests  # Debugging ke liye
 
-      - name: Debug - Show Installed Python Packages
-        run: pip list
+      - name: Verify requests installation
+        run: |
+          pip show requests || echo "requests module not found!"
 
-      - name: Create and Run Extraction Script
+      - name: Run extraction script
         run: |
           echo 'import requests
 import re
@@ -46,14 +46,18 @@ def get_aptoide_download_link(package_name):
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print(f"Error: Unable to access {url}")
-        exit(1)
-    match = re.search(r'"apkUrl":"(https://[^"]+)"', response.text)
+        return None
+    match = re.search(r"\"apkUrl\":\"(https://[^\"]+)\"", response.text)
     if match:
-        print(f"Direct Download Link: {match.group(1)}")
-    else:
-        print("Error: Download link not found.")
-        exit(1)
+        return match.group(1)
+    print("Error: Download link not found.")
+    return None
 
 package_name = "com.instagram.android"
-get_aptoide_download_link(package_name)' > script.py
+download_link = get_aptoide_download_link(package_name)
+
+if download_link:
+    print(f"Direct Download Link: {download_link}")
+else:
+    exit(1)' > script.py
           python script.py
