@@ -1,4 +1,4 @@
-name: Extract Instagram APK from Aptoide (Java)
+name: Full Gradle + Java Setup for Aptoide Scraper
 
 on:
   push:
@@ -10,11 +10,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  id-token: write
+  contents: write
 
 jobs:
-  extract_download_link:
+  setup_and_run:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +26,81 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Run Gradle Task
+      - name: Create Gradle Wrapper
         run: |
-          chmod +x gradlew
-          ./gradlew extractDownloadLink
+          mkdir -p gradle
+          gradle wrapper
+
+      - name: Create Gradle Build Files
+        run: |
+          mkdir -p src/main/java
+          cat <<EOF > settings.gradle
+          rootProject.name = 'AptoideScraperProject'
+          EOF
+
+          cat <<EOF > build.gradle
+          plugins {
+              id 'java'
+              id 'application'
+          }
+
+          repositories {
+              mavenCentral()
+          }
+
+          dependencies {
+              implementation 'org.jsoup:jsoup:1.15.3'
+              implementation 'org.apache.httpcomponents.client5:httpclient5:5.2'
+          }
+
+          application {
+              mainClass = 'AptoideScraper'
+          }
+
+          task extractDownloadLink(type: JavaExec) {
+              mainClass = 'AptoideScraper'
+              classpath = sourceSets.main.runtimeClasspath
+          }
+          EOF
+
+      - name: Create Java Scraper File
+        run: |
+          cat <<EOF > src/main/java/AptoideScraper.java
+          import org.jsoup.Jsoup;
+          import org.jsoup.nodes.Document;
+          import java.io.IOException;
+          import java.util.regex.Matcher;
+          import java.util.regex.Pattern;
+
+          public class AptoideScraper {
+              public static void main(String[] args) {
+                  String packageName = "com.instagram.android";
+                  String url = "https://en.aptoide.com/app/" + packageName;
+                  
+                  try {
+                      Document doc = Jsoup.connect(url)
+                              .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+                              .get();
+                      
+                      Pattern pattern = Pattern.compile("\"apkUrl\":\"(https://[^\"]+)\"");
+                      Matcher matcher = pattern.matcher(doc.html());
+
+                      if (matcher.find()) {
+                          System.out.println("Direct Download Link: " + matcher.group(1));
+                      } else {
+                          System.out.println("Error: Download link not found.");
+                          System.exit(1);
+                      }
+                  } catch (IOException e) {
+                      System.out.println("Error: Unable to access " + url);
+                      System.exit(1);
+                  }
+              }
+          }
+          EOF
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x gradlew
+
+      - name: Build and Run Scraper
+        run: ./gradlew extractDownloadLink
