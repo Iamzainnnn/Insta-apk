@@ -37,9 +37,7 @@ jobs:
 
       - name: Run extraction script
         run: |
-          echo 'import requests
-import re
-
+        
 def get_aptoide_download_link(package_name):
     url = f"https://en.aptoide.com/app/{package_name}"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
