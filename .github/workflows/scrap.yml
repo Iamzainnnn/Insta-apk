@@ -39,7 +39,6 @@ jobs:
         run: |
           cat <<EOF > script.py
 
-
 def get_aptoide_download_link(package_name):
     url = f'https://en.aptoide.com/app/{package_name}'
     headers =
