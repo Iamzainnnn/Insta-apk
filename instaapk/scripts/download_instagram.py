@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 from gplayapi.fetch import login, device_checkin, get_instagram_download_url
 import requests
 
