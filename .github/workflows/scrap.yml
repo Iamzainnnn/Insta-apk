@@ -30,7 +30,7 @@ jobs:
           echo "GSF_ID=${{ secrets.GSF_ID }}" >> .env
 
       - name: Run APK fetcher
-        run: python scripts/download_instagram.py
+        run: instaapk/scripts/download_instagram.py
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
