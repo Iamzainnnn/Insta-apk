@@ -29,10 +29,11 @@ jobs:
           echo "GP_PASSWORD=${{ secrets.GP_PASSWORD }}" >> .env
           echo "GSF_ID=${{ secrets.GSF_ID }}" >> .env
 
-chmod +x instaapk/scripts/download_instagram.py
+      - name: Make script executable
+        run: chmod +x instaapk/scripts/download_instagram.py
 
       - name: Run APK fetcher
-        run: instaapk/scripts/download_instagram.py
+        run: ./instaapk/scripts/download_instagram.py
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
