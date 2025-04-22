@@ -3,7 +3,7 @@ name: Fetch Instagram APK
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 12 * * *"  # Runs every day at 12:00 UTC
+    - cron: "0 12 * * *"  # Har din 12:00 PM UTC pe chalega
 
 jobs:
   fetch-instagram:
@@ -33,7 +33,7 @@ jobs:
         run: python scripts/download_instagram.py
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: instagram-apk
           path: |
