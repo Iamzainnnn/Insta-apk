@@ -33,6 +33,8 @@ jobs:
         run: chmod +x instaapk/scripts/download_instagram.py
 
       - name: Run APK fetcher
+        env:
+          PYTHONPATH: ./instaapk
         run: ./instaapk/scripts/download_instagram.py
 
       - name: Upload APK artifact
