@@ -1,4 +1,40 @@
+name: Fetch Instagram APK
 
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * * *"  # Runs every day at 12:00 UTC
 
-- name: Download Instagram APK
-  run: python scripts/download_instagram.py
+jobs:
+  fetch-instagram:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create .env from secrets
+        run: |
+          echo "GP_USERNAME=${{ secrets.GP_USERNAME }}" >> .env
+          echo "GP_PASSWORD=${{ secrets.GP_PASSWORD }}" >> .env
+          echo "GSF_ID=${{ secrets.GSF_ID }}" >> .env
+
+      - name: Run APK fetcher
+        run: python scripts/download_instagram.py
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: instagram-apk
+          path: |
+            ./downloads/*.apk
